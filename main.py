@@ -10,26 +10,28 @@ from datetime import datetime
 
 games_df = pd.read_csv("games.csv")
 
-try:
-    for game in games_df["GAME"]:
-        
-        url = f"{PSN_TROPHIES_URL}/search/guides?q={quote(game)}"
-        html = requests.get(url)
-        time.sleep(random.randint(2, 5))
 
-        code = bs(html.content, features="html.parser")
-        guide_cards = code.find_all(class_="guide-page-info")
-        url = f"{PSN_TROPHIES_URL}{guide_cards[0].contents[1].attrs["href"]}"
+for game in games_df["GAME"]:
+        try:
+            print(f"Getting data for: {game}")
+            url = f"{PSN_TROPHIES_URL}/search/guides?q={quote(game +' -')}"
+            html = requests.get(url)
+            # time.sleep(random.randint(1, 3))
 
-        html = requests.get(url)
-        time.sleep(random.randint(2, 5))
+            code = bs(html.content, features="html.parser")
+            guide_cards = code.find_all(class_="guide-page-info")
+            url = f"{PSN_TROPHIES_URL}{guide_cards[0].contents[1].attrs["href"]}"
 
-        code = bs(html.content, features="html.parser")
-        guide_cards = code.find_all(class_="tag")
-        hours = format_hours(guide_cards[2].text.replace("\n",""))
-        games_df.loc[games_df["GAME"] == game, "HOURS"] = hours
-except:
-     games_df.loc[games_df["GAME"] == game, "HOURS"] = None
+            html = requests.get(url)
+            # time.sleep(random.randint(1, 3))
+
+            code = bs(html.content, features="html.parser")
+            guide_cards = code.find_all(class_="tag")
+            hours = format_hours(guide_cards[2].text.replace("\n",""))
+            games_df.loc[games_df["GAME"] == game, "HOURS"] = hours
+        except:
+            games_df.loc[games_df["GAME"] == game, "HOURS"] = None
     
+print("Creating excel file...")
 now = datetime.now()
-games_df.to_excel(f"GameList_{now.month}-{now.day}.xlsx")
+games_df.to_excel(f"GameList_{now.month}-{now.day}.xlsx", index=False)

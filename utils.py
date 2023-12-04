@@ -5,9 +5,8 @@ def format_hours(text):
     regex_match = re.match(regex, text)
     
     if regex_match:
-        number = regex_match.group(1)
-        word = regex_match.group(2)
-        return f'{number} {word}'
+        number = regex_match.group(1)        
+        return int(number)
     else:
         return None
     
