@@ -10,3 +10,4 @@ def format_hours(text):
         return f'{number} {word}'
     else:
         return None
+    
